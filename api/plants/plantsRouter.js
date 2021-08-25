@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const Plants = require('./plantsModel.js');
+const jwt_decode = require('jwt-decode');
 
 router.get('/', async (req, res, next) => {
   try {
@@ -22,8 +23,14 @@ router.get('/:id', async (req, res, next) => {
 });
 
 router.post('/newPlant', async (req, res, next) => {
-  const plantData = req.body;
+  console.log(req.header.subject)
+  const token = req.header('authorization');
+  const decodedToken = jwt_decode(token);
+  console.log(decodedToken)
 
+  const plantData = req.body;
+  plantData.userId = decodedToken.subject;
+  console.log(plantData)
   try {
     const newPlant = await Plants.addPlant(plantData);
     res.status(201).json(newPlant);
