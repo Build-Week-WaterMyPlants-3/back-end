@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const restricted = require('../middleware/restricted');
 const Users = require('./usersModel');
 const { jwtSecret } = require('../config/secret');
+const { uniqueName, checkUserExists } = require('../middleware/middleware');
 
 router.get('/', restricted, async (req, res, next) => {
   try {
@@ -14,7 +15,7 @@ router.get('/', restricted, async (req, res, next) => {
   };
 });
 
-router.post('/register', async (req, res, next) => {
+router.post('/register', uniqueName, async (req, res, next) => {
   const newUser = req.body;
   const hash = bcrypt.hashSync(newUser.password, 8);
   newUser.password = hash;
@@ -27,7 +28,7 @@ router.post('/register', async (req, res, next) => {
   };
 });
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', checkUserExists, async (req, res, next) => {
   let { username, password } = req.body;
 
   try {
@@ -42,6 +43,7 @@ router.post('/login', async (req, res, next) => {
     next(err);
   };
 });
+
 
 router.put('/editUser/:id', restricted, async (req, res, next) => {
   const { id } = req.params;
